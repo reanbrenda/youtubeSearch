@@ -1,52 +1,50 @@
-import { useState, useEffect } from 'react';
-import { SearchForm } from './Components/SearchForm';
-import { YoutubeSearchList } from './Components/YoutubeResult';
+import { useState } from 'react'
+import { SearchForm } from './Components/SearchForm'
+import {YoutubeSearchList} from './Components/YoutubeResult'
 import { AppContainer } from './Components/styled';
-import axios from 'axios';
-import useSWR from 'swr';
-import './App.css';
-import { Outlet, useNavigate, useSearchParams } from 'react-router';
+import axios from "axios";
+import useSWR from "swr";
+import './App.css'
+import { Outlet, useNavigate} from 'react-router';
 
-// Fetcher function for SWR
 async function fetcher(url) {
   const response = await axios.get(url);
   return response.data;
+  
 }
-
 function App() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const searchText = searchParams.get("q") || "water"; 
+  const [searchText, setSearchText]= useState("");
   const navigate = useNavigate();
-
-
   const { data, error, isLoading } = useSWR(
-    searchText ? `https://harbour.dev.is/api/search?q=${searchText}` : null,
+    `https://harbour.dev.is/api/search?q=${searchText}`,
+    
     fetcher
   );
 
-  
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
 
-
   if (error) {
-    return <h1>Error: {error.message}</h1>;
+    return <h1>{error.message}</h1>;
   }
-
-
-  const addSearchText = (text) => {
-    setSearchParams({ q: text });
-    navigate("/") 
+  
+  const addSearchText = (searchText) => {
+    
+    setSearchText(searchText);
+    navigate("/");
+    
   };
+
+ 
 
   return (
     <AppContainer>
-      <SearchForm addSearchText={addSearchText} />
-      <Outlet />
-      <YoutubeSearchList data={data} />
+      <SearchForm   addSearchText={addSearchText}/>
+      <Outlet/>
+      <YoutubeSearchList   data={data}/>
     </AppContainer>
-  );
+  )
 }
 
-export default App;
+export default App

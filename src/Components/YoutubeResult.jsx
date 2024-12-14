@@ -13,7 +13,7 @@ export function YoutubeSearchList({ data }) {
   >
       {data.map((item) => (
 
-        <VideoItem key={item.id}  variants={itemVariants}
+        <VideoItem key={item.id.videoId}  variants={itemVariants}
           whileHover="hover" >
          <Link to={`/${item.id.videoId}`}>
          <VideoThumbnail src={item.snippet.thumbnails.url} alt="Video Thumbnail"  variants={thumbnailVariants}
