@@ -1,4 +1,4 @@
-import React, { useRef } from "react"
+import React, { useRef } from "react";
 import { useParams } from "react-router";
 import { VideoDetailsContainer } from "../Components/styled";
 import useSWR from "swr";
@@ -15,9 +15,9 @@ export function YoutubeDetails() {
 
   const { data, error } = useSWR(
     `https://harbour.dev.is/api/videos/${videoId}`,
-    fetcher
+    fetcher,
   );
-  
+
   if (!data && !error) {
     return <h1>Loading...</h1>;
   }
@@ -30,7 +30,7 @@ export function YoutubeDetails() {
     videoRef.current.scrollIntoView({ behavior: "smooth" });
   }
   return (
-    <VideoDetailsContainer  ref={videoRef}>
+    <VideoDetailsContainer ref={videoRef}>
       <iframe
         width="560"
         height="315"

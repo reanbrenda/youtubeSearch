@@ -1,6 +1,5 @@
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-
+import styled from "styled-components";
+import { motion } from "framer-motion";
 
 export const StyledSearchForm = styled.form`
   display: flex;
@@ -35,7 +34,6 @@ export const ErrorMessage = styled.p`
   font-size: 14px;
 `;
 
-
 export const VideoTitle = styled.p`
   padding: 6px;
   margin: 0;
@@ -62,8 +60,6 @@ export const ErrorText = styled.div`
   margin: 20px 0;
 `;
 
-
-
 export const AppContainer = styled.div`
   width: 100%;
   max-width: 1400px;
@@ -71,7 +67,6 @@ export const AppContainer = styled.div`
   padding: 0 20px;
   box-sizing: border-box;
 `;
-
 
 export const VideoGrid = styled(motion.div)`
   display: grid;
@@ -81,15 +76,13 @@ export const VideoGrid = styled(motion.div)`
   padding: 20px 0;
 `;
 
-
 export const VideoItem = styled(motion.div)`
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 `;
-
 
 export const VideoThumbnail = styled(motion.img)`
   width: 100%;
@@ -98,16 +91,15 @@ export const VideoThumbnail = styled(motion.img)`
   transition: transform 0.3s ease;
 `;
 
-
 export const gridVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      delayChildren: 0.90,
-      staggerChildren: 0.1
-    }
-  }
+      delayChildren: 0.9,
+      staggerChildren: 0.1,
+    },
+  },
 };
 
 export const itemVariants = {
@@ -116,19 +108,19 @@ export const itemVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      duration: 0.5
-    }
+      duration: 0.5,
+    },
   },
   hover: {
     scale: 1.05,
-    transition: { duration: 0.3 }
-  }
+    transition: { duration: 0.3 },
+  },
 };
 
 export const thumbnailVariants = {
   initial: { scale: 1 },
-  hover: { 
+  hover: {
     scale: 1.1,
-    transition: { duration: 0.3 }
-  }
+    transition: { duration: 0.3 },
+  },
 };
