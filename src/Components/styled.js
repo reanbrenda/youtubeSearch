@@ -124,3 +124,81 @@ export const thumbnailVariants = {
     transition: { duration: 0.3 },
   },
 };
+
+export const ModalContainer = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+
+  .modal {
+    background: white;
+    padding: 20px;
+    width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease;
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 18px;
+      color: #3498db;
+      text-align: center;
+    }
+
+    input {
+      width: calc(100% - 20px);
+      margin: 10px auto;
+      padding: 10px;
+      border: 2px solid #3498db;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &.create {
+        background: #3498db;
+        color: white;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background: #2980b9;
+        }
+      }
+
+      &.cancel {
+        background: #ccc;
+        color: #333;
+
+        &:hover {
+          background: #b3b3b3;
+        }
+      }
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+`;
