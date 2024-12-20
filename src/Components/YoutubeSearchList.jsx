@@ -1,63 +1,38 @@
+import React, { useState } from "react";
 import { Link } from "react-router";
-import {
-  VideoGrid,
-  VideoItem,
-  VideoThumbnail,
-  VideoTitle,
-  gridVariants,
-  itemVariants,
-  thumbnailVariants,
-} from "./styled";
-import { useState } from "react";
-import axios from "axios";
+import { VideoGrid, VideoItem, VideoThumbnail, VideoTitle } from "./styled";
 
-export function YoutubeSearchList({ data, playlists, onVideoAdd }) {
+
+export function YoutubeSearchList({ data, playlists, onVideoAdd, sharedPlaylistId }) {
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const handleAddToPlaylistClick = (video) => {
     setSelectedVideo(video);
-    setDropdownOpen(true); 
+    setDropdownOpen(true);
   };
 
   const handleAddVideoToPlaylist = async (playlistId) => {
     if (!selectedVideo) return;
 
     try {
-      await axios.post(`https://harbour.dev.is/api/playlists/${playlistId}/videos`, {
-        videoId: selectedVideo.id.videoId,
-        title: selectedVideo.snippet.title,
-        thumbnailUrl: selectedVideo.snippet.thumbnails.url,
-      });
-
-     
-      if (onVideoAdd) onVideoAdd(playlistId, selectedVideo);
-
-      alert(`Video added to playlist successfully!`);
+      await onVideoAdd(playlistId, selectedVideo);
     } catch (error) {
-      console.error("Failed to add video to playlist:", error);
-      alert("Failed to add video. Please try again.");
+      console.error("Error adding video to playlist:", error);
     } finally {
-      setDropdownOpen(false); 
-      setSelectedVideo(null); 
+      setDropdownOpen(false);
+      setSelectedVideo(null);
     }
   };
 
   return (
-    <VideoGrid variants={gridVariants} initial="hidden" animate="visible">
+    <VideoGrid>
       {data.map((item) => (
-        <VideoItem
-          key={item.id.videoId}
-          variants={itemVariants}
-          whileHover="hover"
-        >
+        <VideoItem key={item.id.videoId}>
           <Link to={`/${item.id.videoId}`}>
             <VideoThumbnail
               src={item.snippet.thumbnails.url}
               alt="Video Thumbnail"
-              variants={thumbnailVariants}
-              initial="initial"
-              whileHover="hover"
             />
           </Link>
           <VideoTitle>{item.snippet.title}</VideoTitle>
@@ -65,18 +40,25 @@ export function YoutubeSearchList({ data, playlists, onVideoAdd }) {
             Add to Playlist
           </button>
 
-         
           {isDropdownOpen && selectedVideo === item && (
             <div className="dropdown">
               <h4>Select a Playlist</h4>
               <ul>
-                {playlists.map((playlist) => (
-                  <li key={playlist.id}>
-                    <button onClick={() => handleAddVideoToPlaylist(playlist.id)}>
-                      {playlist.name}
+                {sharedPlaylistId ? (
+                  <li>
+                    <button onClick={() => handleAddVideoToPlaylist(sharedPlaylistId)}>
+                      Add to Shared Playlist
                     </button>
                   </li>
-                ))}
+                ) : (
+                  playlists.map((playlist) => (
+                    <li key={playlist.id}>
+                      <button onClick={() => handleAddVideoToPlaylist(playlist.id)}>
+                        {playlist.name}
+                      </button>
+                    </li>
+                  ))
+                )}
               </ul>
             </div>
           )}
@@ -85,3 +67,4 @@ export function YoutubeSearchList({ data, playlists, onVideoAdd }) {
     </VideoGrid>
   );
 }
+

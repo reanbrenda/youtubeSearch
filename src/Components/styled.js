@@ -202,3 +202,46 @@ export const ModalContainer = styled.div`
     }
   }
 `;
+
+
+export const GlobalStyles = styled.div`
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  line-height: 1.5;
+`;
+
+
+
+export const NavBar = styled.nav`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #3498db;
+  color: #fff;
+
+  a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 10px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+
+export const Button = styled.button`
+  background: #3498db;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background: #2980b9;
+  }
+`;
