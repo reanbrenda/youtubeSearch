@@ -1,25 +1,42 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
-import { ModalContainer } from "./styled";
+import { Drawer, List, ListItem, ListItemText, IconButton, TextField, Button, Box } from "@mui/material";
+import { Add, Delete, Close } from "@mui/icons-material";
+import styled from "styled-components";
 import useSWR, { mutate } from "swr";
 import axios from "axios";
+import { ListItem as MuiListItem } from "@mui/material";
 
 const PLAYLIST_STORAGE_KEY = "playlistIds";
 
+const StyledSidebarHeader = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #f5f5f5;
+`;
+
+const StyledPlaylistList = styled(List)`
+  padding: 16px;
+`;
+const StyledListItem = styled(MuiListItem)`
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Light gray background on hover */
+    cursor: pointer;
+  }
+`;
 export function PlaylistManager({ children, sharedPlaylistId }) {
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
 
   const storedPlaylistIds = JSON.parse(localStorage.getItem(PLAYLIST_STORAGE_KEY)) || [];
-
-  
-  const isSharedPlaylist =
-    sharedPlaylistId && !storedPlaylistIds.includes(sharedPlaylistId);
+  const isSharedPlaylist = sharedPlaylistId && !storedPlaylistIds.includes(sharedPlaylistId);
 
   const { data: playlists, error: playlistError, mutate: mutatePlaylists } = useSWR(
     isSharedPlaylist
-      ? [`https://harbour.dev.is/api/playlists/${sharedPlaylistId}`] 
-      : storedPlaylistIds.map((id) => `https://harbour.dev.is/api/playlists/${id}`), 
+      ? [`https://harbour.dev.is/api/playlists/${sharedPlaylistId}`]
+      : storedPlaylistIds.map((id) => `https://harbour.dev.is/api/playlists/${id}`),
     async (urls) => {
       const responses = await Promise.all(urls.map((url) => axios.get(url)));
       return isSharedPlaylist ? [responses[0].data] : responses.map((res) => res.data);
@@ -27,11 +44,6 @@ export function PlaylistManager({ children, sharedPlaylistId }) {
   );
 
   const handleCreatePlaylist = async () => {
-    if (isSharedPlaylist) {
-      alert("Cannot create a new playlist while viewing a shared playlist.");
-      return;
-    }
-
     if (!newPlaylistName.trim()) {
       alert("Playlist name cannot be empty.");
       return;
@@ -48,7 +60,7 @@ export function PlaylistManager({ children, sharedPlaylistId }) {
 
       mutatePlaylists([...playlists, newPlaylist], false);
       setNewPlaylistName("");
-      setModalOpen(false);
+      setSidebarOpen(false);
     } catch (err) {
       console.error("Failed to create playlist:", err);
       alert("Failed to create playlist. Please try again.");
@@ -56,11 +68,6 @@ export function PlaylistManager({ children, sharedPlaylistId }) {
   };
 
   const handleDeletePlaylist = async (playlistId) => {
-    if (isSharedPlaylist) {
-      alert("Cannot delete a shared playlist.");
-      return;
-    }
-
     try {
       await axios.delete(`https://harbour.dev.is/api/playlists/${playlistId}`);
 
@@ -75,88 +82,99 @@ export function PlaylistManager({ children, sharedPlaylistId }) {
     }
   };
 
-  const onVideoAdd = async (playlistId, video) => {
-    const playlist = playlists.find((p) => p.id === playlistId);
-
-    if (!playlist) {
-      alert("Playlist not found.");
-      return;
-    }
-
-    const isDuplicate = playlist.videos.some((v) => v.videoId === video.id.videoId);
-
-    if (isDuplicate) {
-      alert("This video is already in the playlist.");
-      return;
-    }
-
-    try {
-      await axios.post(`https://harbour.dev.is/api/playlists/${playlistId}/videos`, {
-        videoId: video.id.videoId,
-        title: video.snippet.title,
-        thumbnailUrl: video.snippet.thumbnails.url,
-      });
-
-      const updatedVideos = [...playlist.videos, { videoId: video.id.videoId, ...video.snippet }];
-      mutate(
-        storedPlaylistIds.map((id) => `https://harbour.dev.is/api/playlists/${id}`),
-        playlists.map((p) => (p.id === playlistId ? { ...p, videos: updatedVideos } : p)),
-        false
-      );
-
-      alert("Video added to playlist successfully!");
-    } catch (error) {
-      console.error("Failed to add video to playlist:", error);
-      alert("Failed to add video. Please try again.");
-    }
-  };
-
   return (
     <div>
-      {!isSharedPlaylist && (
-        <button onClick={() => setModalOpen(true)}>Create Playlist</button>
-      )}
-      <h2>{isSharedPlaylist ? "Shared Playlist" : "Your Playlists"}</h2>
-      {playlistError ? (
-        <p>Error loading playlists.</p>
-      ) : !playlists ? (
-        <p>Loading playlists...</p>
-      ) : playlists.length === 0 ? (
-        <p>No playlists created yet.</p>
-      ) : (
-        <ul>
-          {playlists.map((playlist) => (
-            <li key={playlist.id}>
-              {isSharedPlaylist ? (
-                <span>{playlist.name}</span>
-              ) : (
-                <Link to={`/playlists/${playlist.id}`}>{playlist.name}</Link>
-              )}
-              {!isSharedPlaylist && (
-                <button onClick={() => handleDeletePlaylist(playlist.id)}>Delete</button>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {children(playlists, onVideoAdd)}
-
-      {isModalOpen && (
-        <ModalContainer>
-          <div className="modal">
-            <h2>Create a New Playlist</h2>
-            <input
-              type="text"
+      <Button variant="contained" color="primary" startIcon={<Add />} onClick={() => setSidebarOpen(true)}>
+        Manage Playlists
+      </Button>
+      
+      <Drawer anchor="right" open={isSidebarOpen} onClose={() => setSidebarOpen(false)}>
+        <StyledSidebarHeader>
+          <h3>{isSharedPlaylist ? "Shared Playlist" : "Your Playlists"}</h3>
+          <IconButton onClick={() => setSidebarOpen(false)}>
+            <Close />
+          </IconButton>
+        </StyledSidebarHeader>
+        {playlistError ? (
+          <p>Error loading playlists.</p>
+        ) : !playlists ? (
+          <p>Loading playlists...</p>
+        ) : playlists.length === 0 ? (
+          <p>No playlists created yet.</p>
+        ) : (
+          <StyledPlaylistList>
+            {playlists.map((playlist) => (
+              <ListItem key={playlist.id} secondaryAction={null}>
+                {isSharedPlaylist ? (
+                  <ListItemText primary={playlist.name} />
+                ) : (
+                  <Link to={`/playlists/${playlist.id}`} 
+                  
+                  style={{ textDecoration: "none", color: "inherit" }}>
+                    <ListItemText primary={playlist.name} />
+                  </Link>
+                )}
+                {!isSharedPlaylist && (
+                  <Box marginLeft="auto">
+                    <IconButton edge="end" onClick={() => handleDeletePlaylist(playlist.id)}>
+                      <Delete />
+                    </IconButton>
+                  </Box>
+                )}
+              </ListItem>
+            ))}
+          </StyledPlaylistList>
+        )}
+        {!isSharedPlaylist && (
+          <Box padding={2}>
+            <TextField
+              fullWidth
+              label="New Playlist Name"
               value={newPlaylistName}
               onChange={(e) => setNewPlaylistName(e.target.value)}
-              placeholder="Enter playlist name"
+              variant="outlined"
+              margin="dense"
             />
-            <button onClick={handleCreatePlaylist}>Create</button>
-            <button onClick={() => setModalOpen(false)}>Cancel</button>
-          </div>
-        </ModalContainer>
-      )}
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleCreatePlaylist}
+              style={{ marginTop: "8px" }}
+            >
+              Create Playlist
+            </Button>
+          </Box>
+        )}
+      </Drawer>
+
+      {children(playlists, async (playlistId, video) => {
+        const playlist = playlists.find((p) => p.id === playlistId);
+        if (!playlist) {
+          alert("Playlist not found.");
+          return;
+        }
+
+        const isDuplicate = playlist.videos.some((v) => v.videoId === video.id.videoId);
+        if (isDuplicate) {
+          alert("This video is already in the playlist.");
+          return;
+        }
+
+        try {
+          await axios.post(`https://harbour.dev.is/api/playlists/${playlistId}/videos`, {
+            videoId: video.id.videoId,
+            title: video.snippet.title,
+            thumbnailUrl: video.snippet.thumbnails.url,
+          });
+
+          const updatedVideos = [...playlist.videos, { videoId: video.id.videoId, ...video.snippet }];
+          mutatePlaylists(playlists.map((p) => (p.id === playlistId ? { ...p, videos: updatedVideos } : p)), false);
+        } catch (error) {
+          console.error("Failed to add video to playlist:", error);
+          alert("Failed to add video. Please try again.");
+        }
+      })}
     </div>
   );
 }
