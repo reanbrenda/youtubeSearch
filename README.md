@@ -149,7 +149,7 @@ DELETE https://harbour.dev.is/api/playlists/{playlistId}
 - Access multiple playlists simultaneously.
 
 ### Persistence and Synchronization
-- Changes to playlists are automatically saved and synchronized across all users.
+- Changes to playlists are automatically saved and synchronized across all tabs.
 - Playlists are also cached locally using Local Storage for offline access.
 
 ---
